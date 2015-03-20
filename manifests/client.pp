@@ -36,7 +36,8 @@ class nagios::client (
     $service_use                 = 'generic-service',
     # other
     $plugin_dir                  = $nagios::params::plugin_dir,
-    $selinux                     = true
+    $selinux                     = true,
+    $default_checks              = true
 ) inherits ::nagios::params {
 
   # We are checking facts, which are strings (not booleans!)
@@ -122,13 +123,15 @@ class nagios::client (
         use => 'generic-service,nagiosgraph-service',
     }
 
-    # Enable all default checks by... default
-    # Old style with facts overrides
-    class { '::nagios::defaultchecks': }
-    # New style with hiera overrides
-    class { '::nagios::check::cpu': }
-    class { '::nagios::check::load': }
-    class { '::nagios::check::conntrack': }
+    if $default_checks {
+      # Enable all default checks by... default
+      # Old style with facts overrides
+      class { '::nagios::defaultchecks': }
+      # New style with hiera overrides
+      class { '::nagios::check::cpu': }
+      class { '::nagios::check::load': }
+      class { '::nagios::check::conntrack': }
+    }
     if $::nagios_mysqld == 'true' {
       class { '::nagios::check::mysql_health': }
     }
